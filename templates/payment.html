@@ -1,0 +1,35 @@
+{% extends 'dashboard.html' %}
+
+{% block content %}
+
+<form method="POST">
+    {% csrf_token %}
+    <h1 style="position: relative; left: 30%;">Payment Details</h1>
+    {% if form %}
+    {% for field in form %}
+    <div style="box-sizing: border-box;width: 95%;
+    height: min-content;
+    padding: 10px;  
+    margin-top: 10px;
+    border: 3px solid black;
+    border-radius: 25px;
+                    background: #73AD21;
+                    
+                    ">
+        <ul>Name: {{field.user}}</ul>
+        <ul>Service: {{field.service}}</ul>
+        <ul>Payment Method: {{ field.payment_method}}</ul>
+        <ul>Date: {{ field.Date}}</ul>
+        <ul>Price: {{ field.price}}</ul>
+        <ul>Payment Status: {{ field.payment_done}}</ul>
+
+    </div>
+    {% endfor %}
+    {%else%}
+    <h4 style="position: absolute;top: 30%; left: 50%;">No Data</h4>
+    {% endif %}
+
+
+</form>
+
+{% endblock %}

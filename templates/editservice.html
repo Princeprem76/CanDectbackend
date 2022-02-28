@@ -1,0 +1,46 @@
+{% extends 'dashboard.html' %}
+
+
+{% block content %}
+<style>
+    .form-group label{
+        position: absolute;
+    }
+    .form-group input, .form-group select{
+        position: relative;
+        left: 20%;
+        margin-bottom: 20px;
+    }
+    h4{
+        text-align: center;
+        margin-left: 30%;
+    }
+</style>
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <form method='post'>
+            {% csrf_token %}
+            <div class="modal-header">
+
+                <h4 class="modal-title " id="myModalLabel">Update Service's Data</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    {% for field in form %}
+                    <div class="form-group">
+
+                        {{ field.label_tag }} {{ field }}
+
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ servicelink }}"><input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" /></a>
+                    <input type="submit" class="btn btn-primary" value="save" style="margin-bottom: 5px;" />
+                </div>
+            </div>
+        </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+{% endblock %}

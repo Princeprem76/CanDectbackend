@@ -1,0 +1,26 @@
+{% extends 'dashboard.html' %}
+
+{% block content %}
+<style>
+    p input, p select{
+        position: absolute;
+        left: 95%;
+    }
+</style>
+<form method="POST">
+    {% csrf_token %}
+<div>
+    <p style="font-size: 40px;position: absolute; top: 10px;left: 50%;">Add Doctor Data</p>
+</div>
+<div style="position: absolute;
+top: 20%;
+left: 40%;">
+    {{form.as_p}}
+    <button type="submit" style="width: 100px;position: relative; left: 60px; background-color: lightseagreen;color: white;"> Save </button>
+</div>
+
+    
+</form>
+
+
+{% endblock %}

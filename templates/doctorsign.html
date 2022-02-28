@@ -1,0 +1,58 @@
+{% extends 'dashboard.html' %}
+
+{% block content %}
+<style>
+    /* p input{
+        position: absolute;
+        left: 100%;
+    } */
+    .form-group label{
+        position: absolute;
+    }
+    .form-group input, .form-group select{
+        position: relative;
+        left: 20%;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    h4{
+        text-align: center;
+        margin-left: 30%;
+    }
+    .modal-dialog{
+        position: absolute;
+        top: 20%;
+        
+    }
+    .modal-footer{
+        height: 40px;
+    }
+</style>
+<div class="modal-dialog modal-st">
+    <div class="modal-content">
+        <form method='post'>
+            {% csrf_token %}
+            <div class="modal-header">
+                
+                <h4 class="modal-title " id="myModalLabel">Signup Doctor</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    {% for field in form %}
+                    <div class="form-group">
+
+                        {{ field.label_tag }} {{ field }}
+
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-success" style="position: relative;right: 80px; width: 100px;color: black;"> Confirm </button>
+                </div>
+        </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+
+
+{% endblock %}
