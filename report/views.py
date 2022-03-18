@@ -15,30 +15,30 @@ fs = FileSystemStorage(location='reports/')
 def ReportValid(request):
     if request.method == 'POST':
         data = request.data
-
-        csv_file = data['file']
-        if not csv_file.name.endswith('.pdf'):
-            return Response('Error')
-        content = csv_file.read()
-        file_content = ContentFile(content)
-        file_name = fs.save(
-            "_report_{}_{}.pdf".format(data['patient_id'], data['diseases']), file_content
-        )
-        tmp_file = fs.path(file_name)
-        Patient = int(data['patient_id'])
-        status = data['status']
-        Disease = data['diseases']
-        AdditionalDetails = data['adddetails']
-        ReportPDF = tmp_file
-        print("aa")
-        print(Patient)
-        print(status)
-        ReportDetail(Status=status, Patient_id=Patient, Disease=Disease, AdditionalDetails=AdditionalDetails,
-                     ReportPDF=ReportPDF).save()
-        print("da")
-        return Response('Successful')
-    # except:
-#     return Response('not successful')
+        try:
+            csv_file = data['file']
+            if not csv_file.name.endswith('.pdf'):
+                return Response('Error')
+            content = csv_file.read()
+            file_content = ContentFile(content)
+            file_name = fs.save(
+                "_report_{}_{}.pdf".format(data['patient_id'], data['diseases']), file_content
+            )
+            tmp_file = fs.path(file_name)
+            Patient = int(data['patient_id'])
+            status = data['status']
+            Disease = data['diseases']
+            AdditionalDetails = data['adddetails']
+            ReportPDF = tmp_file
+            print("aa")
+            print(Patient)
+            print(status)
+            ReportDetail(Status=status, Patient_id=Patient, Disease=Disease, AdditionalDetails=AdditionalDetails,
+                         ReportPDF=ReportPDF).save()
+            print("da")
+            return Response('Successful')
+        except:
+            return Response('not successful')
 
 
 @api_view(['GET'])
