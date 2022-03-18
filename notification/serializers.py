@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from notification import models
+from doctorSignup.models import DoctorsData
 
 
 
@@ -10,7 +11,7 @@ class NotifySerial(serializers.ModelSerializer):
 
 class DoctorNameSerial(serializers.ModelSerializer):
     class Meta:
-        model = models.UserDetail
+        model = DoctorsData
         fields = ['FirstName','LastName']
 
 

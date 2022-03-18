@@ -11,6 +11,7 @@ from .models import medicineDetail
 def Create_Medicine(request):
     if request.method == 'POST':
         data = request.data
+        print(data)
         try:
             Doctor_Name = data['doctor_id']
             Patient_Name = data['patient_id']
@@ -20,6 +21,7 @@ def Create_Medicine(request):
                            Medicine=Medicine).save()
             return Response('Successful')
         except:
+            print("saa")
             return Response('error')
 
 

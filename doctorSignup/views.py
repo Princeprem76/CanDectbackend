@@ -144,7 +144,8 @@ def ecgdetection(request):
         reader = pd.read_csv(tmp_file)
         value = [[]]
         for idd, row in enumerate(reader):
-            value[0].append(row)
+            print(row)
+            value[0].append(float(row))
         scaler = StandardScaler()
         x_train = scaler.fit_transform(value)
         x_train = x_train.reshape(len(x_train), x_train.shape[1], -1)

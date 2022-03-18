@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from appointment import models
 # from doctorSignup.models import DoctorDetail
+from doctorSignup.models import DoctorsData
 from services.models import AddService
 from userSignup.models import UserData, UserDetail
 
@@ -13,7 +14,7 @@ class appointSerial(serializers.ModelSerializer):
 
 class DoctorData(serializers.ModelSerializer):
     class Meta:
-        model = UserDetail
+        model = DoctorsData
         fields = ['FirstName', 'LastName']
 
 class patientData(serializers.ModelSerializer):
