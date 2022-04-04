@@ -25,8 +25,8 @@ ecgmodel = keras.models.load_model('ecgDet.h5')
 
 @api_view(['GET'])
 def DoctorData(request, doctoremail):
-    doctors = DoctorsData.objects.get(Doctoremail=doctoremail)
-    serializer = DoctorDataSerial(doctors, many=False)
+    doctors = DoctorsData.objects.get(Doctoremail__email=doctoremail)
+    serializer = DoctorupdatedetailSerial(doctors, many=False)
     return Response(serializer.data)
 
 
@@ -47,10 +47,14 @@ def Login_Doctor(request):
     try:
         user = authenticate(username=email, password=password)
         if user is not None:
-            login(request, user)
             doctorData = UserDetail.objects.get(email=email)
-            serializer = DoctorIDSerial(doctorData, many=False)
-            return Response(serializer.data)
+            if doctorData.is_staff == True:
+                login(request, user)
+                doctorData = UserDetail.objects.get(email=email)
+                serializer = DoctorIDSerial(doctorData, many=False)
+                return Response(serializer.data)
+            else:
+                Response("Notdoctor")
         else:
             return Response("not successful")
     except:
@@ -63,7 +67,7 @@ def updateDoctordetail(request, doctoremail):
     age = data['age']
     address = data['address']
     phone = data['phone']
-    userPass = DoctorData.objects.get(email=doctoremail)
+    userPass = DoctorsData.objects.get(Doctoremail__email=doctoremail)
     serializer = DoctorupdatedetailSerial(
         userPass, age=age, address=address, phone=phone)
     serializer.save()

@@ -16,7 +16,6 @@ def paymentDetail(request):
     if request.method == "POST":
         data = request.data
         try:
-            print(data)
             price = data['price']
             payment_method = data['payment_method']
             user = data['user']

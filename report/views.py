@@ -30,12 +30,10 @@ def ReportValid(request):
             Disease = data['diseases']
             AdditionalDetails = data['adddetails']
             ReportPDF = tmp_file
-            print("aa")
-            print(Patient)
-            print(status)
+
             ReportDetail(Status=status, Patient_id=Patient, Disease=Disease, AdditionalDetails=AdditionalDetails,
                          ReportPDF=ReportPDF).save()
-            print("da")
+
             return Response('Successful')
         except:
             return Response('not successful')
