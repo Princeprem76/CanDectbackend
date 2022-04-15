@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -46,15 +47,8 @@ def AdminService(request):
         if form.is_valid():
             form.save()
             servicedat = AddService.objects.all()
-            context = {
-                'form': form
-            }
-            return render(request, '../templates/services.html',
-                          {'form': form, 'serv': servicedat, 'homelink': 'http://127.0.0.1:8000/home',
-                           'bookinglink': 'http://127.0.0.1:8000/booking',
-                           'paymentlink': 'http://127.0.0.1:8000/payment',
-                           'servicelink': 'http://127.0.0.1:8000/service',
-                           'doctorlink': 'http://127.0.0.1:8000/signupdoctor'})
+            messages.error(request, 'Service Added')
+            return HttpResponseRedirect('/service')
         else:
 
             return HttpResponse('Error')
@@ -62,9 +56,9 @@ def AdminService(request):
     form = createService()
     servicedat = AddService.objects.all()
     return render(request, '../templates/services.html',
-                  {'form': form, 'serv': servicedat, 'homelink': 'http://127.0.0.1:8000/home',
-                   'bookinglink': 'http://127.0.0.1:8000/booking', 'paymentlink': 'http://127.0.0.1:8000/payment',
-                   'servicelink': 'http://127.0.0.1:8000/service', 'doctorlink': 'http://127.0.0.1:8000/signupdoctor'})
+                  {'form': form, 'serv': servicedat, 'homelink': '/home',
+                   'bookinglink': '/booking', 'paymentlink': '/payment',
+                   'servicelink': '/service', 'doctorlink': '/signupdoctor'})
 
 
 @login_required
@@ -72,6 +66,7 @@ def deleteserv(request, id):
     if request.method == 'POST':
         dat = AddService.objects.get(pk=id)
         dat.delete()
+        messages.error(request, 'Service deleted')
         return HttpResponseRedirect('/service')
 
 
@@ -82,6 +77,7 @@ def editService(request, id):
         servicesform = createService(request.POST, instance=data)
         if servicesform.is_valid():
             servicesform.save()
+            messages.error(request, 'Service Updated')
             return HttpResponseRedirect('/service')
     else:
         data = AddService.objects.get(pk=id)

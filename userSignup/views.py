@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.http.response import HttpResponseRedirect
@@ -202,10 +203,13 @@ def adminLogin(request):
             password = form.cleaned_data['Password']
             user = authenticate(username=useremail, password=password)
             if user is not None:
-                login(request, user)
-                return HttpResponseRedirect('/home')
+                if user.admin:
+                    login(request, user)
+                    messages.error(request, 'Successfully Logged In')
+                    return HttpResponseRedirect('/home')
+                else:
+                    messages.error(request, 'Credentials does not match')
             else:
-                form = AdminLog()
-                return render(request, '../templates/loginPage.html', {'form': form})
+                messages.error(request, 'username Password not matched')
     form = AdminLog()
     return render(request, '../templates/loginPage.html', {'form': form})

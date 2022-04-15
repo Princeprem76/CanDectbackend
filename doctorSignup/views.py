@@ -1,4 +1,7 @@
+import re
+
 import pandas as pd
+from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from django.contrib.auth import authenticate, login, logout
@@ -7,7 +10,6 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from sklearn.preprocessing import StandardScaler
 from tensorflow import keras
-
 
 from userSignup.models import UserDetail, UserData
 from .forms import CreateDoctorForm, DoctorEmailForm
@@ -31,6 +33,13 @@ def DoctorData(request, doctoremail):
 
 
 @api_view(['GET'])
+def DoctorDatas(request, doctoremail):
+    doctors = DoctorsData.objects.get(Doctoremail__email=doctoremail)
+    serializer = DoctorDataSerial(doctors, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
 def AppointmentDoctor(request, serviceid):
     doctorData = DoctorsData.objects.filter(field=serviceid)
     serializer = DoctorDataSerial(doctorData, many=True)
@@ -50,11 +59,11 @@ def Login_Doctor(request):
             doctorData = UserDetail.objects.get(email=email)
             if doctorData.is_staff == True:
                 login(request, user)
-                doctorData = UserDetail.objects.get(email=email)
+                doctorData = DoctorsData.objects.get(Doctoremail__email=email)
                 serializer = DoctorIDSerial(doctorData, many=False)
                 return Response(serializer.data)
             else:
-                Response("Notdoctor")
+                return Response("Notdoctor")
         else:
             return Response("not successful")
     except:
@@ -74,14 +83,15 @@ def updateDoctordetail(request, doctoremail):
     return Response('Updated')
 
 
-@login_required
+@login_required(login_url='/adminLogin')
 def LogOut(request):
     logout(request)
+    messages.error(request, 'Successfully Logged out!')
     return HttpResponseRedirect('/adminLogin')
 
 
 # Admin
-@login_required
+@login_required(login_url='/adminLogin')
 def doctorEmailA(request):
     if request.method == 'POST':
         form = DoctorEmailForm(request.POST or None)
@@ -92,16 +102,17 @@ def doctorEmailA(request):
                 email=useremail, password=password)
             user.save()
             form = DoctorEmailForm()
+            messages.error(request, 'Doctor Credentials Added')
             return HttpResponseRedirect('/addDoctor')
         else:
             form = DoctorEmailForm()
 
     form = DoctorEmailForm()
-    return render(request, '../templates/doctorsign.html', {'form': form, 'homelink': 'http://127.0.0.1:8000/home',
-                                                            'bookinglink': 'http://127.0.0.1:8000/booking',
-                                                            'paymentlink': 'http://127.0.0.1:8000/payment',
-                                                            'servicelink': 'http://127.0.0.1:8000/service',
-                                                            'doctorlink': 'http://127.0.0.1:8000/signupdoctor'})
+    return render(request, '../templates/doctorsign.html', {'form': form, 'homelink': '/home',
+                                                            'bookinglink': '/booking',
+                                                            'paymentlink': '/payment',
+                                                            'servicelink': '/service',
+                                                            'doctorlink': '/signupdoctor'})
 
 
 @api_view(['POST'])
@@ -148,25 +159,46 @@ def ecgdetection(request):
         reader = pd.read_csv(tmp_file)
         value = [[]]
         for idd, row in enumerate(reader):
-            print(row)
-            value[0].append(float(row))
+            dat = re.sub(r'^([^.]*\.[^.]*)\.', r'\1', str(row))
+            value[0].append(float(dat))
         scaler = StandardScaler()
         x_train = scaler.fit_transform(value)
         x_train = x_train.reshape(len(x_train), x_train.shape[1], -1)
         his = ecgmodel.predict(x_train)
-        if his[0] == 0:
-            his = 'Normal'
+        b = 0
+        temps = his
+        for iter_num in range(len(his[0]) - 1, 0, -1):
+            for idx in range(iter_num):
+                if his[0][idx] > his[0][idx + 1]:
+                    temp = his[0][idx]
+                    his[0][idx] = his[0][idx + 1]
+                    his[0][idx + 1] = temp
+
+        for iter_num in range(len(temps[0]) - 1, 0, -1):
+            for i in range(iter_num):
+                print(temps[0][i])
+                print(his[0][4])
+                if temps[0][i] == his[0][4]:
+                    b = i
+        if b == 0:
+            return Response('Normal')
+        elif b == 1:
+            return Response('Unknown')
+        elif b == 2:
+            return Response('Ventricular ectopic')
+        elif b == 3:
+            return Response('Supraventricular ectopic')
         else:
-            his = 'Melignent'
-        return Response(his)
+            return Response('Fusion Beat')
 
 
-@login_required
+@login_required(login_url='/adminLogin')
 def doctorAdd(request):
     if request.method == 'POST':
         form = CreateDoctorForm(request.POST or None)
         if form.is_valid():
             form.save()
+            messages.error(request, 'Doctor Details Added')
             return HttpResponseRedirect('/signupdoctor')
 
         else:
@@ -178,7 +210,7 @@ def doctorAdd(request):
                    'servicelink': '/service', 'doctorlink': '/signupdoctor'})
 
 
-@login_required
+@login_required(login_url='/adminLogin')
 def doctDat(request):
     dat = DoctorsData.objects.all()
     doctdat = DoctorsData.objects.all().count()
@@ -190,21 +222,23 @@ def doctDat(request):
                    'doctorlink': '/signupdoctor'})
 
 
-@login_required
+@login_required(login_url='/adminLogin')
 def deleteDat(request, id):
     if request.method == 'POST':
         dat = UserDetail.objects.get(email=id)
         dat.delete()
+        messages.error(request, 'Doctor data has been deleted')
         return HttpResponseRedirect('/home')
 
 
-@login_required
+@login_required(login_url='/adminLogin')
 def editDoctor(request, id):
     if request.method == 'POST':
         data = DoctorsData.objects.get(pk=id)
         doctorform = CreateDoctorForm(request.POST, instance=data)
         if doctorform.is_valid():
             doctorform.save()
+            messages.error(request, 'Doctor data updated')
             return HttpResponseRedirect('/home')
     else:
         data = DoctorsData.objects.get(pk=id)
